@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>医疗废物分类小游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial Rounded MT Bold', 'Arial', sans-serif;
+        }
+
+        body {
+            background-color: #e6f7ff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .game-container {
+            width: 100%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 150, 200, 0.2);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .screen {
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 500px;
+        }
+
+        h1 {
+            color: #0066cc;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 2.5rem;
+        }
+
+        h2 {
+            color: #0099cc;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        p {
+            color: #555;
+            margin-bottom: 20px;
+            text-align: center;
+            line-height: 1.5;
+        }
+
+        .btn {
+            background-color: #00aaff;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 0 #0088cc;
+            margin-top: 20px;
+        }
+
+        .btn:hover {
+            background-color: #0088cc;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #006699;
+        }
+
+        .btn:active {
+            transform: translateY(4px);
+            box-shadow: none;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            padding: 15px 30px;
+            background-color: #00aaff;
+            color: white;
+            font-size: 1.2rem;
+        }
+
+        .game-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 30px;
+            width: 100%;
+        }
+
+        .waste-image {
+            width: 200px;
+            height: 200px;
+            background-color: #f0f8ff;
+            border-radius: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px dashed #00aaff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .waste-image img {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+        }
+
+        .categories {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .category-btn {
+            background-color: #e6f7ff;
+            border: 2px solid #00aaff;
+            border-radius: 15px;
+            padding: 15px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            min-height: 80px;
+        }
+
+        .category-btn:hover {
+            background-color: #cceeff;
+            transform: scale(1.03);
+        }
+
+        .category-btn.correct {
+            background-color: #99ff99;
+            border-color: #00cc00;
+        }
+
+        .category-btn.wrong {
+            background-color: #ff9999;
+            border-color: #cc0000;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background-color: #e6f7ff;
+            border-radius: 10px;
+            margin: 20px 0;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            background-color: #00aaff;
+            border-radius: 10px;
+            transition: width 0.3s;
+        }
+
+        .timer {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0066cc;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .result-screen {
+            text-align: center;
+        }
+
+        .score-display {
+            font-size: 3rem;
+            color: #00aaff;
+            margin: 20px 0;
+        }
+
+        .med-character {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            background-color: #e6f7ff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 3px solid #00aaff;
+        }
+
+        .med-character img {
+            max-width: 80%;
+            max-height: 80%;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 600px) {
+            .categories {
+                grid-template-columns: 1fr;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .game-header {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <!-- 开始界面 -->
+        <div id="start-screen" class="screen">
+            <div class="med-character">
+                <!-- 这里可以放置医疗卡通角色 -->
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#00aaff" />
+                    <circle cx="35" cy="40" r="5" fill="white" />
+                    <circle cx="65" cy="40" r="5" fill="white" />
+                    <path d="M 30 65 Q 50 80 70 65" stroke="white" stroke-width="3" fill="none" />
+                    <rect x="45" y="30" width="10" height="40" fill="white" />
+                    <rect x="30" y="45" width="40" height="10" fill="white" />
+                </svg>
+            </div>
+            <h1>医疗废物分类小游戏</h1>
+            <p>在180秒内，对40种医疗废物进行分类</p >
+            <p>答对一题得2.5分，满分100分</p >
+            <p>帮助我们的医疗小助手正确分类医疗废物！</p >
+            <button id="start-btn" class="btn">开始游戏</button>
+        </div>
+
+        <!-- 游戏界面 -->
+        <div id="game-screen" class="screen hidden">
+            <div class="game-header">
+                <div class="timer">时间: <span id="time">180</span>秒</div>
+                <div class="score">得分: <span id="score">0</span>/100</div>
+            </div>
+            
+            <div class="game-content">
+                <div class="progress-bar">
+                    <div id="progress" class="progress" style="width: 0%"></div>
+                </div>
+                
+                <div class="waste-image">
+                    <span id="waste-name">医疗废物图片</span>
+                </div>
+                
+                <div class="categories">
+                    <button class="category-btn" data-category="infectious">感染性废物</button>
+                    <button class="category-btn" data-category="pathological">病理性废物</button>
+                    <button class="category-btn" data-category="chemical">化学性废物</button>
+                    <button class="category-btn" data-category="sharp">损伤性废物</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 结束界面 -->
+        <div id="end-screen" class="screen hidden">
+            <div class="med-character">
+                <!-- 这里可以放置不同的医疗卡通角色 -->
+                <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="50" cy="50" r="45" fill="#00cc99" />
+                    <circle cx="35" cy="40" r="5" fill="white" />
+                    <circle cx="65" cy="40" r="5" fill="white" />
+                    <path d="M 30 65 Q 50 75 70 65" stroke="white" stroke-width="3" fill="none" />
+                    <path d="M 40 55 Q 50 60 60 55" stroke="white" stroke-width="2" fill="none" />
+                </svg>
+            </div>
+            <h2>游戏结束！</h2>
+            <p>你的最终得分是：</p >
+            <div class="score-display" id="final-score">0</div>
+            <p id="result-message">继续努力！</p >
+            <button id="restart-btn" class="btn">再玩一次</button>
+        </div>
+    </div>
+
+    <script>
+        // 游戏数据 - 医疗废物及其分类
+        const medicalWaste = [
+            { name: "使用过的注射器", category: "infectious" },
+            { name: "废弃的手术刀", category: "sharp" },
+            { name: "过期药品", category: "chemical" },
+            { name: "人体组织", category: "pathological" },
+            { name: "使用过的棉签", category: "infectious" },
+            { name: "废弃的针头", category: "sharp" },
+            { name: "化学试剂", category: "chemical" },
+            { name: "手术切除物", category: "pathological" },
+            { name: "使用过的纱布", category: "infectious" },
+            { name: "破碎的玻璃试管", category: "sharp" },
+            { name: "废弃的汞血压计", category: "chemical" },
+            { name: "胎盘", category: "pathological" },
+            { name: "使用过的手套", category: "infectious" },
+            { name: "采血针", category: "sharp" },
+            { name: "消毒剂", category: "chemical" },
+            { name: "病理标本", category: "pathological" },
+            { name: "使用过的口罩", category: "infectious" },
+            { name: "缝合针", category: "sharp" },
+            { name: "实验室废液", category: "chemical" },
+            { name: "手术废弃物", category: "pathological" }
+            // 实际游戏中应该有100个，这里简化示例
+        ];
+
+        // 游戏状态
+        let gameState = {
+            currentWasteIndex: 0,
+            score: 0,
+            timeLeft: 180,
+            timer: null,
+            currentWasteItems: []
+        };
+
+        // DOM元素
+        const startScreen = document.getElementById('start-screen');
+        const gameScreen = document.getElementById('game-screen');
+        const endScreen = document.getElementById('end-screen');
+        const startBtn = document.getElementById('start-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const timeDisplay = document.getElementById('time');
+        const scoreDisplay = document.getElementById('score');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const wasteNameDisplay = document.getElementById('waste-name');
+        const progressBar = document.getElementById('progress');
+        const categoryButtons = document.querySelectorAll('.category-btn');
+        const resultMessage = document.getElementById('result-message');
+
+        // 分类名称映射
+        const categoryNames = {
+            infectious: "感染性废物",
+            pathological: "病理性废物",
+            chemical: "化学性废物",
+            sharp: "损伤性废物"
+        };
+
+        // 开始游戏
+        startBtn.addEventListener('click', startGame);
+        restartBtn.addEventListener('click', startGame);
+
+        function startGame() {
+            // 重置游戏状态
+            gameState.currentWasteIndex = 0;
+            gameState.score = 0;
+            gameState.timeLeft = 180;
+            
+            // 随机选择40个医疗废物
+            gameState.currentWasteItems = [...medicalWaste]
+                .sort(() => Math.random() - 0.5)
+                .slice(0, 40);
+            
+            // 更新显示
+            updateDisplay();
+            
+            // 切换屏幕
+            startScreen.classList.add('hidden');
+            endScreen.classList.add('hidden');
+            gameScreen.classList.remove('hidden');
+            
+            // 开始计时器
+            if (gameState.timer) clearInterval(gameState.timer);
+            gameState.timer = setInterval(updateTimer, 1000);
+            
+            // 显示第一个废物
+            showNextWaste();
+        }
+
+        function updateTimer() {
+            gameState.timeLeft--;
+            timeDisplay.textContent = gameState.timeLeft;
+            
+            if (gameState.timeLeft <= 0) {
+                endGame();
+            }
+        }
+
+        function showNextWaste() {
+            if (gameState.currentWasteIndex >= gameState.currentWasteItems.length) {
+                endGame();
+                return;
+            }
+            
+            const currentWaste = gameState.currentWasteItems[gameState.currentWasteIndex];
+            wasteNameDisplay.textContent = currentWaste.name;
+            
+            // 重置按钮状态
+            categoryButtons.forEach(btn => {
+                btn.classList.remove('correct', 'wrong');
+                btn.disabled = false;
+            });
+            
+            // 更新进度条
+            const progress = (gameState.currentWasteIndex / gameState.currentWasteItems.length) * 100;
+            progressBar.style.width = `${progress}%`;
+        }
+
+        function handleCategorySelection(e) {
+            const selectedCategory = e.target.dataset.category;
+            const correctCategory = gameState.currentWasteItems[gameState.currentWasteIndex].category;
+            
+            // 禁用所有按钮防止重复点击
+            categoryButtons.forEach(btn => {
+                btn.disabled = true;
+            });
+            
+            // 标记正确和错误的答案
+            categoryButtons.forEach(btn => {
+                if (btn.dataset.category === correctCategory) {
+                    btn.classList.add('correct');
+                } else if (btn.dataset.category === selectedCategory && selectedCategory !== correctCategory) {
+                    btn.classList.add('wrong');
+                }
+            });
+            
+            // 检查答案
+            if (selectedCategory === correctCategory) {
+                gameState.score += 2.5;
+                scoreDisplay.textContent = gameState.score;
+            }
+            
+            // 延迟后显示下一个
+            setTimeout(() => {
+                gameState.currentWasteIndex++;
+                showNextWaste();
+            }, 1500);
+        }
+
+        function endGame() {
+            clearInterval(gameState.timer);
+            
+            // 更新最终得分
+            finalScoreDisplay.textContent = gameState.score;
+            
+            // 根据得分显示不同消息
+            if (gameState.score >= 90) {
+                resultMessage.textContent = "太棒了！你是医疗废物分类专家！";
+            } else if (gameState.score >= 70) {
+                resultMessage.textContent = "做得很好！继续努力成为专家！";
+            } else if (gameState.score >= 50) {
+                resultMessage.textContent = "不错！再多了解一些医疗废物分类知识吧！";
+            } else {
+                resultMessage.textContent = "继续学习医疗废物分类知识，下次会更好！";
+            }
+            
+            // 切换屏幕
+            gameScreen.classList.add('hidden');
+            endScreen.classList.remove('hidden');
+        }
+
+        function updateDisplay() {
+            scoreDisplay.textContent = gameState.score;
+            timeDisplay.textContent = gameState.timeLeft;
+        }
+
+        // 为分类按钮添加事件监听器
+        categoryButtons.forEach(btn => {
+            btn.addEventListener('click', handleCategorySelection);
+        });
+    </script>
+</body>
+</html>
